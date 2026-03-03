@@ -1,1159 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SkillForge — Professional Quiz Platform</title>
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- =====================================
-       Styles: long, detailed, and responsive
-       (keeps everything in one file as requested)
-       ===================================== -->
-  <style>
-    /* -------------------------
-       Root variables & theme
-       ------------------------- */
-    :root{
-      --bg-1: #0f1724;           /* deep navy */
-      --bg-2: #0b1220;           /* darker */
-      --card: #0f1724;
-      --muted: #9aa4b2;
-      --accent: #7c5cff;         /* purple/indigo accent */
-      --accent-2: #00d4ff;       /* cyan accent */
-      --success: #2ecc71;
-      --danger: #e74c3c;
-      --glass: rgba(255,255,255,0.04);
-      --glass-2: rgba(255,255,255,0.02);
-      --radius: 14px;
-      --max-width: 980px;
-      --transition: 260ms cubic-bezier(.2,.9,.3,1);
-    }
-
-    /* -------------------------
-       Base & Reset
-       ------------------------- */
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      min-height:100%;
-      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.12), transparent 6%),
-                  radial-gradient(1000px 500px at 90% 90%, rgba(0,212,255,0.07), transparent 6%),
-                  linear-gradient(180deg,var(--bg-1), var(--bg-2));
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      padding:48px 16px;
-      color: #e6eef6;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      line-height:1.45;
-    }
-
-    /* -------------------------
-       Container
-       ------------------------- */
-    .app {
-      width:100%;
-      max-width: var(--max-width);
-      display:grid;
-      grid-template-columns: 320px 1fr;
-      gap: 24px;
-      align-items:start;
-    }
-
-    /* -------------------------
-       Sidebar / Left column
-       ------------------------- */
-    .sidebar {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius: var(--radius);
-      padding:20px;
-      box-shadow: 0 6px 30px rgba(2,6,23,0.45);
-      min-height:320px;
-      position:sticky;
-      top: 28px;
-    }
-
-    .brand {
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-    }
-    .logo {
-      width:46px;height:46px;border-radius:10px;
-      background: linear-gradient(135deg,var(--accent), var(--accent-2));
-      display:flex;align-items:center;justify-content:center;
-      font-weight:800;color:white;font-size:20px;box-shadow: 0 6px 18px rgba(124,92,255,0.18);
-    }
-    .brand h1{font-size:16px;margin:0}
-    .brand p{font-size:12px;color:var(--muted);margin:0}
-
-    /* User card / profile */
-    .profile {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:12px;
-      padding:12px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      margin-bottom:18px;
-    }
-    .avatar {
-      width:58px;height:58px;border-radius:10px;
-      background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-      display:flex;align-items:center;justify-content:center;color:var(--accent);
-      font-weight:700;font-size:18px;border:1px solid rgba(255,255,255,0.03);
-    }
-    .profile-info h3{margin:0;font-size:15px}
-    .profile-info p{margin:0;font-size:12px;color:var(--muted)}
-
-    /* Category list */
-    .categories {
-      margin-top:10px;
-    }
-    .category {
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:10px;
-      border-radius:10px;
-      margin-bottom:10px;
-      cursor:pointer;
-      transition:var(--transition);
-      border:1px solid transparent;
-      color:#eaf1ff;
-    }
-    .category:hover{transform:translateY(-4px); box-shadow: 0 8px 30px rgba(2,6,23,0.35)}
-    .category .icon {
-      width:44px;height:44px;border-radius:8px;background:var(--glass);display:flex;align-items:center;justify-content:center;color:var(--accent);
-      font-size:18px;font-weight:700;border:1px solid rgba(255,255,255,0.02);
-    }
-    .category h4{margin:0;font-size:14px}
-    .category p{margin:0;font-size:12px;color:var(--muted)}
-
-    .category.active{
-      background:linear-gradient(90deg, rgba(124,92,255,0.12), rgba(0,212,255,0.05));
-      border-color:rgba(124,92,255,0.14);
-      box-shadow:0 10px 30px rgba(12,10,30,0.35);
-      transform:none;
-    }
-
-    /* Leaderboard / best score */
-    .leaderboard {
-      margin-top:12px;
-      border-radius:12px;
-      padding:12px;
-      background:var(--glass-2);
-      font-size:13px;
-    }
-    .leaderboard h5{margin:0 0 8px 0;font-size:13px}
-    .lead-row{display:flex;justify-content:space-between;color:var(--muted);margin-bottom:8px}
-
-    /* -------------------------
-       Main / Right column
-       ------------------------- */
-    .main {
-      min-height:360px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius: var(--radius);
-      padding:22px;
-      box-shadow: 0 8px 40px rgba(2,6,23,0.45);
-    }
-
-    .main-header {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom:16px;
-    }
-    .main-header h2{margin:0;font-size:18px}
-    .controls {display:flex;gap:10px;align-items:center}
-    .chip {
-      padding:8px 12px;
-      background:rgba(255,255,255,0.02);
-      border-radius:999px;border:1px solid rgba(255,255,255,0.03);
-      font-size:13px;color:var(--muted);
-    }
-
-    /* Card for quiz content */
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
-      border-radius:12px;
-      padding:18px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-    }
-
-    /* Question area */
-    .meta {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:12px;
-      gap:12px;
-    }
-    .meta .left {display:flex;gap:12px;align-items:center}
-    .meta .right {font-size:14px;color:var(--muted)}
-
-    .question {
-      font-size:18px;
-      font-weight:600;
-      margin-bottom:14px;
-    }
-
-    /* Options grid */
-    .options-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-bottom:12px;
-    }
-    .opt {
-      padding:12px;
-      border-radius:10px;
-      background: rgba(255,255,255,0.02);
-      border:1px solid rgba(255,255,255,0.03);
-      cursor:pointer;
-      transition:var(--transition);
-      font-weight:600;
-      text-align:left;
-      box-shadow: 0 6px 18px rgba(2,6,23,0.2);
-    }
-    .opt:hover{transform:translateY(-4px)}
-    .opt.disabled{opacity:0.65;cursor:default;transform:none}
-    .opt.correct{background:linear-gradient(90deg, rgba(46,204,113,0.95), rgba(46,204,113,0.85)); color:#052a18}
-    .opt.wrong{background:linear-gradient(90deg, rgba(231,76,60,0.95), rgba(231,76,60,0.85)); color:#2b0d0d}
-
-    /* small explanation text */
-    .explain {
-      margin-top:10px;
-      font-size:13px;
-      color:var(--muted);
-      background:rgba(255,255,255,0.02);
-      padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);
-    }
-
-    /* progress bar */
-    .progress-wrap {height:12px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden;margin:12px 0}
-    .progress {height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 400ms ease}
-
-    /* footer area of quiz controls */
-    .footer-controls {
-      display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:12px;
-    }
-    .btn {
-      padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;font-weight:700;cursor:pointer;transition:var(--transition);
-    }
-    .btn.secondary {
-      background:transparent;border:1px solid rgba(255,255,255,0.04);
-      color:var(--muted);font-weight:600;
-    }
-    .btn.ghost {
-      background:transparent;color:var(--muted);border: none;padding:8px 10px;border-radius:8px;
-    }
-
-    /* Result view */
-    .result-grid {
-      display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start;
-    }
-    .summary {
-      padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
-    }
-    .summary h3{margin:0 0 8px 0}
-    .stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.03);font-weight:600}
-    .strengths {margin-top:12px}
-
-    /* responsive */
-    @media (max-width:1000px){
-      .app{grid-template-columns:1fr; padding-bottom: 60px}
-      .sidebar{position:static;order:2}
-      .main{order:1}
-      .result-grid{grid-template-columns:1fr}
-    }
-
-    /* little helpers */
-    .muted{color:var(--muted)}
-    .small{font-size:13px}
-    .center{text-align:center}
-    input[type="text"], input[type="number"]{
-      font-family:inherit;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Delicious Bites - Fine Dining Restaurant">
+    <title>Delicious Bites - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- ============================================
-       App Markup - Entire UI in one page (single file)
-       ============================================ -->
-  <div class="app" id="app">
-
-    <!-- LEFT: Sidebar / Categories / User -->
-    <aside class="sidebar" aria-label="Sidebar with categories and profile">
-      <div class="brand">
-        <div class="logo">SF</div>
-        <div>
-          <h1>SkillForge</h1>
-          <p class="muted">Practice • Improve • Master</p>
-        </div>
-      </div>
-
-      <!-- Profile: users can set name before starting -->
-      <div class="profile">
-        <div class="avatar" id="avatar">U</div>
-        <div class="profile-info">
-          <h3 id="displayName">Guest User</h3>
-          <p id="greeting" class="muted">Welcome — set your name below</p>
-        </div>
-      </div>
-
-      <!-- quick user input -->
-      <div style="display:flex;gap:8px;margin-bottom:12px">
-        <input id="username" type="text" placeholder="Enter your name" aria-label="Enter your name">
-        <button id="saveName" class="btn secondary">Save</button>
-      </div>
-
-      <!-- categories -->
-      <div style="margin-top:6px">
-        <h4 style="margin:8px 4px 10px 4px;font-size:13px">Choose a category</h4>
-        <div class="categories" id="categoryList">
-          <!-- categories injected by JS for flexibility -->
-        </div>
-      </div>
-
-      <!-- best scores / leaderboard -->
-      <div class="leaderboard" aria-live="polite">
-        <h5>Best Scores</h5>
-        <div id="bestScoresArea" class="muted">
-          <!-- populated by JS -->
-        </div>
-      </div>
-
-      <div style="margin-top:12px;font-size:13px;color:var(--muted)">
-        <p><strong>Tip:</strong> Try different categories. The app saves your best scores locally on this device.</p>
-      </div>
-    </aside>
-
-    <!-- RIGHT: Main content area -->
-    <main class="main" role="main">
-
-      <!-- Header area -->
-      <div class="main-header">
-        <div>
-          <h2 id="mainTitle">Ready to sharpen your skills?</h2>
-          <p class="muted small" id="subTitle">Select a category on the left and start a focused practice session.</p>
-        </div>
-
-        <div class="controls">
-          <div class="chip" id="qCountChip">Questions: 10</div>
-          <div class="chip" id="timeChip">Time/Q: 15s</div>
-          <button id="settingsBtn" class="btn ghost" title="Quiz settings">⚙️ Settings</button>
-        </div>
-      </div>
-
-      <!-- Card: Quiz content (dynamically switched between welcome, quiz, result) -->
-      <div class="card" id="contentCard">
-
-        <!-- Welcome / onboarding view -->
-        <section id="welcomeView">
-          <h3>Welcome to SkillForge</h3>
-          <p class="muted">This platform focuses on quick, concentrated practice sessions. Choose a category and set your quiz length & time-per-question in settings. Immediate feedback, progress tracking, and performance insights will help you improve quickly.</p>
-
-          <div style="display:flex;gap:12px;margin-top:16px">
-            <button id="startBtn" class="btn">Start Practice</button>
-            <button id="demoBtn" class="btn secondary">Take Demo Quiz</button>
-          </div>
-
-          <div style="margin-top:18px" class="muted small">
-            <p><strong>Features:</strong></p>
-            <ul>
-              <li>10–20 questions per quiz (configurable)</li>
-              <li>Per-question timer with skip/auto-next</li>
-              <li>Instant feedback + explanation</li>
-              <li>Local best-scores and progress summary</li>
-            </ul>
-          </div>
-        </section>
-
-        <!-- Quiz view -->
-        <section id="quizView" class="hidden" aria-live="polite">
-          <div class="meta">
-            <div class="left">
-              <div class="chip" id="categoryBadge">Category</div>
-              <div class="muted small" id="qIndex">Q 1 / 10</div>
-            </div>
-            <div class="right muted small">User: <span id="userBadge">Guest</span></div>
-          </div>
-
-          <div class="question" id="questionText">Question text</div>
-
-          <div class="options-grid" id="optionsGrid" role="list">
-            <!-- options injected here -->
-          </div>
-
-          <div class="explain hidden" id="explainText"></div>
-
-          <div class="progress-wrap" aria-hidden="true">
-            <div class="progress" id="progressBar"></div>
-          </div>
-
-          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between" class="footer-controls">
-            <div>
-              <div class="muted small">Time left</div>
-              <div style="font-weight:700"><span id="timeLeft">15</span>s</div>
-            </div>
-
-            <div style="flex:1;display:flex;gap:8px;justify-content:center">
-              <button id="prevBtn" class="btn secondary" title="Previous question">⟵ Prev</button>
-              <button id="skipBtn" class="btn secondary" title="Skip question">⏭ Skip</button>
-              <button id="nextBtn" class="btn" title="Next question">Next ⟶</button>
-            </div>
-
-            <div style="text-align:right">
-              <div class="muted small">Score</div>
-              <div style="font-weight:700" id="liveScore">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Result view -->
-        <section id="resultView" class="hidden" aria-live="polite">
-          <div class="result-grid">
-            <div>
-              <div class="summary">
-                <h3>Session Summary</h3>
-                <div class="stat-row"><div>Score</div><div id="finalScore">0 / 10</div></div>
-                <div class="stat-row"><div>Percentage</div><div id="finalPercent">0%</div></div>
-                <div class="stat-row"><div>Correct</div><div id="finalCorrect">0</div></div>
-                <div class="stat-row"><div>Incorrect</div><div id="finalIncorrect">0</div></div>
-                <div class="stat-row"><div>Skipped</div><div id="finalSkipped">0</div></div>
-
-                <div class="strengths">
-                  <h4 style="margin:12px 0 6px 0">Performance Notes</h4>
-                  <p id="finalFeedback" class="muted small">-</p>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="images/logo.png" alt="Delicious Bites Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <span class="logo-text" style="display:none;">Delicious Bites</span>
                 </div>
-
-                <div style="display:flex;gap:12px;margin-top:12px">
-                  <button id="retryBtn" class="btn">Try Again</button>
-                  <button id="newCatBtn" class="btn secondary">Choose Category</button>
-                </div>
-              </div>
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li><a href="index.html" class="nav-link active">Home</a></li>
+                        <li><a href="about.html" class="nav-link">About Us</a></li>
+                        <li><a href="menu.html" class="nav-link">Menu</a></li>
+                        <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                        <li><a href="contact.html" class="nav-link">Contact</a></li>
+                        <li><a href="reservation.html" class="nav-link">Reservation</a></li>
+                    </ul>
+                    <button class="menu-toggle" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </nav>
             </div>
+        </div>
+    </header>
 
-            <aside>
-              <div class="summary">
-                <h4>Category Stats</h4>
-                <div id="categoryStats" style="font-size:13px" class="muted small">
-                  <!-- populated by JS -->
+    <!-- Hero Banner -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Delicious Bites</h1>
+            <p class="hero-tagline">A Culinary Journey of Excellence</p>
+            <p class="hero-description">Experience fine dining with our carefully crafted dishes made from the freshest ingredients</p>
+            <div class="hero-buttons">
+                <a href="menu.html" class="btn btn-primary">View Menu</a>
+                <a href="reservation.html" class="btn btn-secondary">Make Reservation</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Highlights Section -->
+    <section class="highlights">
+        <div class="container">
+            <h2 class="section-title">Why Choose Us</h2>
+            <div class="highlights-grid">
+                <div class="highlight-card">
+                    <div class="highlight-icon">🍽️</div>
+                    <h3>Fresh Ingredients</h3>
+                    <p>We source the finest ingredients daily to ensure quality in every dish</p>
                 </div>
-
-                <h4 style="margin-top:12px">Leaderboard</h4>
-                <div id="resultLeaderboard" style="font-size:13px" class="muted small">
-                  <!-- best scores -->
+                <div class="highlight-card">
+                    <div class="highlight-icon">👨‍🍳</div>
+                    <h3>Expert Chefs</h3>
+                    <p>Our experienced chefs bring years of culinary expertise to your table</p>
                 </div>
-              </div>
-            </aside>
-          </div>
-
-          <div style="margin-top:14px" class="muted small">Review: below you can revisit questions to study explanations.</div>
-
-          <div id="reviewArea" style="margin-top:12px"></div>
-        </section>
-
-        <!-- Settings modal (simplified inline area) -->
-        <section id="settingsView" class="hidden" style="margin-top:12px">
-          <h4>Settings</h4>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <label class="muted small" style="display:block;width:180px">
-              Questions per quiz
-              <input id="settingCount" type="number" min="5" max="20" value="10">
-            </label>
-            <label class="muted small" style="display:block;width:180px">
-              Time per question (seconds)
-              <input id="settingTime" type="number" min="5" max="120" value="15">
-            </label>
-            <label class="muted small" style="display:block;width:180px">
-              Shuffle questions
-              <select id="settingShuffle">
-                <option value="true" selected>Yes</option>
-                <option value="false">No</option>
-              </select>
-            </label>
-          </div>
-
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button id="saveSettingsBtn" class="btn">Save</button>
-            <button id="cancelSettingsBtn" class="btn secondary">Close</button>
-          </div>
-        </section>
-
-      </div> <!-- end card -->
-    </main>
-  </div>
-
-  <!-- ============================================
-       Script: long, documented, and extendable
-       ============================================ -->
-  <script>
-  /*****************************************************************************
-   * SkillForge - Single-file pro-level quiz application
-   * - Contains UI management, question bank, timer, progress, localStorage,
-   *   and review/leaderboard functionality.
-   * - The code is intentionally verbose and commented for educational purposes.
-   *****************************************************************************/
-
-  /* ============================
-     Constants & initial state
-     ============================ */
-
-  // Categories & sample question bank. Each question has:
-  // { id, q, opts:[], ans, explain }
-  // The question bank below contains a generous set of questions per category.
-  // Expand this list to reach 10-20 questions per category as desired.
-  const CATEGORIES = [
-    { key: "gk", title: "General Knowledge", icon: "🌍", color: "#7c5cff" },
-    { key: "cs", title: "Computer Science", icon: "💻", color: "#00d4ff" },
-    { key: "math", title: "Mathematics", icon: "🧮", color: "#ffd166" },
-    { key: "eng", title: "English", icon: "📖", color: "#4ccd7f" }
-  ];
-
-  // A substantial sample bank — add or replace to match your lesson plan.
-  const QUESTION_BANK = {
-    gk: [
-      { id: "gk1", q: "What is the capital of India?", opts: ["Mumbai","Delhi","Kolkata","Chennai"], ans: "Delhi", explain: "New Delhi is the capital city of India." },
-      { id: "gk2", q: "Which planet is known as the Red Planet?", opts: ["Mars","Venus","Jupiter","Saturn"], ans: "Mars", explain: "Mars appears red because of iron oxide (rust) on its surface." },
-      { id: "gk3", q: "Which ocean is the largest on Earth?", opts: ["Atlantic","Indian","Pacific","Arctic"], ans: "Pacific", explain: "The Pacific Ocean is the largest and deepest ocean." },
-      { id: "gk4", q: "Which city hosted the 2016 Summer Olympics?", opts: ["Tokyo","Rio de Janeiro","Beijing","London"], ans: "Rio de Janeiro", explain: "Rio hosted the games in 2016." },
-      { id: "gk5", q: "Which is the longest river in the world?", opts: ["Nile","Amazon","Yangtze","Mississippi"], ans: "Nile", explain: "The Nile is traditionally considered the longest river." },
-      { id: "gk6", q: "Who wrote the play 'Romeo and Juliet'?", opts:["Shakespeare","Tolkien","Dickens","Austen"], ans:"Shakespeare", explain:"William Shakespeare wrote this famous tragedy." },
-      { id: "gk7", q: "Which country is known as the Land of the Rising Sun?", opts:["China","Japan","Thailand","South Korea"], ans:"Japan", explain:"Japan is often called the Land of the Rising Sun." },
-      { id: "gk8", q: "What gas do plants take in for photosynthesis?", opts:["Oxygen","Carbon Dioxide","Nitrogen","Hydrogen"], ans:"Carbon Dioxide", explain:"Plants take in CO₂ and release O₂." },
-      { id: "gk9", q: "What is the smallest prime number?", opts:["0","1","2","3"], ans:"2", explain:"2 is the smallest and only even prime number." },
-      { id: "gk10", q: "Which famous scientist developed the theory of relativity?", opts:["Newton","Einstein","Tesla","Curie"], ans:"Einstein", explain:"Albert Einstein proposed the theory of relativity." },
-      { id: "gk11", q: "Which metal is used to make coins due to its resistance to corrosion?", opts:["Iron","Copper","Gold","Aluminium"], ans:"Copper", explain:"Copper and its alloys are common in coins due to durability." },
-      { id: "gk12", q: "Which language has the most native speakers globally?", opts:["English","Mandarin Chinese","Hindi","Spanish"], ans:"Mandarin Chinese", explain:"Mandarin has the highest number of native speakers." }
-    ],
-    cs: [
-      { id:"cs1", q:"Which language runs in web browsers?", opts:["Java","C++","Python","JavaScript"], ans:"JavaScript", explain:"JavaScript is the programming language of the web." },
-      { id:"cs2", q:"What does HTML stand for?", opts:["Hyper Text Markup Language","Highlevel Text Multi Language","Hyperlink Text Markup List","Hyper Tool Markup Language"], ans:"Hyper Text Markup Language", explain:"HTML structures content in web pages." },
-      { id:"cs3", q:"Which company developed the React library?", opts:["Google","Facebook (Meta)","Microsoft","Apple"], ans:"Facebook (Meta)", explain:"React was open-sourced by Facebook (now Meta)." },
-      { id:"cs4", q:"What is the primary use of CSS?", opts:["Data storage","Styling webpages","Backend logic","Database queries"], ans:"Styling webpages", explain:"CSS is used to style and layout web pages." },
-      { id:"cs5", q:"Which data structure uses FIFO order?", opts:["Stack","Queue","Tree","Graph"], ans:"Queue", explain:"Queue follows First-In-First-Out." },
-      { id:"cs6", q:"Which complexity is happiest for linear search in average case?", opts:["O(1)","O(n)","O(log n)","O(n log n)"], ans:"O(n)", explain:"Linear search checks each element — O(n)." },
-      { id:"cs7", q:"What does API stand for?", opts:["Application Programming Interface","Automatic Process Input","Applied Program Integration","Advanced Processing Interface"], ans:"Application Programming Interface", explain:"APIs allow different software systems to communicate." },
-      { id:"cs8", q:"Which HTTP method is idempotent?", opts:["POST","GET","PATCH","None"], ans:"GET", explain:"GET requests are safe and typically idempotent." },
-      { id:"cs9", q:"What is Git primarily used for?", opts:["Text editing","Version control","Database management","Compiling"], ans:"Version control", explain:"Git tracks changes in source code and supports collaboration." },
-      { id:"cs10", q:"Which of the following is a NoSQL database?", opts:["MySQL","PostgreSQL","MongoDB","SQLite"], ans:"MongoDB", explain:"MongoDB is a popular document-based NoSQL database." }
-    ],
-    math: [
-      { id:"m1", q:"12 × 8 = ?", opts:["88","96","108","100"], ans:"96", explain:"12 times 8 equals 96." },
-      { id:"m2", q:"Square root of 169?", opts:["12","13","14","15"], ans:"13", explain:"13 × 13 = 169." },
-      { id:"m3", q:"What is the value of π (approx)?", opts:["2.14","3.14","4.14","3.41"], ans:"3.14", explain:"Pi (π) is approximately 3.14159." },
-      { id:"m4", q:"If 50% of x is 30, x equals?", opts:["45","60","30","90"], ans:"60", explain:"50% of 60 = 30." },
-      { id:"m5", q:"What is 15^2?", opts:["225","150","215","205"], ans:"225", explain:"15 times 15 is 225." },
-      { id:"m6", q:"What is 7 + 8 × 2 ?", opts:["30","23","38","15"], ans:"23", explain:"Order of operations: multiply before add -> 8×2=16, +7=23." },
-      { id:"m7", q:"Which is an irrational number?", opts:["1/2","√2","3","4"], ans:"√2", explain:"√2 cannot be expressed as a ratio of integers." },
-      { id:"m8", q:"Angle sum in a triangle (degrees)?", opts:["180","90","360","270"], ans:"180", explain:"Sum of internal angles in a triangle is 180°." },
-      { id:"m9", q:"What is the factorial of 5 (5!)?", opts:["120","24","60","720"], ans:"120", explain:"5! = 5×4×3×2×1 = 120." },
-      { id:"m10", q:"If y = 2x + 3, y when x=4?", opts:["10","11","12","9"], ans:"11", explain:"y = 2*4 + 3 = 11." }
-    ],
-    eng: [
-      { id:"e1", q:"Plural of 'child'?", opts:["Childs","Children","Childes","Child"], ans:"Children", explain:"The irregular plural of 'child' is 'children'." },
-      { id:"e2", q:"Synonym of 'happy'?", opts:["Sad","Joyful","Angry","Tired"], ans:"Joyful", explain:"Joyful means feeling or showing great happiness." },
-      { id:"e3", q:"Antonym of 'increase'?", opts:["Raise","Grow","Decrease","Add"], ans:"Decrease", explain:"Decrease means to become smaller or fewer." },
-      { id:"e4", q:"Which is a noun?", opts:["Run","Beautiful","Happiness","Quickly"], ans:"Happiness", explain:"Happiness is a noun; run is a verb; beautiful is an adjective." },
-      { id:"e5", q:"Pick the correctly punctuated sentence.", opts:["Its raining.", "It's raining.", "Its' raining.", "Its raining!"], ans:"It's raining.", explain:"It's is the contraction of 'It is'." },
-      { id:"e6", q:"Which word is an adjective?", opts:["Blue","Run","Quickly","Yes"], ans:"Blue", explain:"Adjectives describe nouns, e.g., 'blue car'." },
-      { id:"e7", q:"Which is a past tense verb?", opts:["Eat","Eats","Ate","Eating"], ans:"Ate", explain:"Ate is the past tense of eat." },
-      { id:"e8", q:"Choose the sentence in passive voice.", opts:["Cats chase mice.","Mice are chased by cats.","Cats are chasing mice.","Cats had chased mice."], ans:"Mice are chased by cats.", explain:"Passive voice: the subject receives the action." },
-      { id:"e9", q:"Which is a conjunction?", opts:["And","But","Or","All of the above"], ans:"All of the above", explain:"And, but, or are conjunctions." },
-      { id:"e10", q:"Identify the adverb: 'She sings beautifully.'", opts:["She","Sings","Beautifully","None"], ans:"Beautifully", explain:"'Beautifully' describes how she sings, so it's an adverb." }
-    ]
-  };
-
-  // Default configuration (saved into localStorage when user modifies)
-  const DEFAULT_SETTINGS = {
-    questionCount: 10,
-    timePerQuestion: 15,
-    shuffleQuestions: true
-  };
-
-  // Application runtime state (mutable)
-  let state = {
-    user: { name: null },
-    selectedCategory: null,
-    questions: [],
-    currentIndex: 0,
-    correct: 0,
-    incorrect: 0,
-    skipped: 0,
-    score: 0,
-    timeLeft: DEFAULT_SETTINGS.timePerQuestion,
-    timerId: null,
-    settings: loadSettings()
-  };
-
-  /* ============================
-     Utility & DOM helpers
-     ============================ */
-
-  // Simple DOM helpers
-  const $ = (id)=> document.getElementById(id);
-  const create = (tag, attrs={}, text="")=>{
-    const el = document.createElement(tag);
-    Object.entries(attrs).forEach(([k,v])=>{
-      if(k === "class") el.className = v;
-      else if(k === "dataset") Object.entries(v).forEach(([dname,dval])=>el.dataset[dname]=dval);
-      else el.setAttribute(k,v);
-    });
-    if(text) el.textContent = text;
-    return el;
-  };
-
-  // Save & load settings to localStorage (keeps preferences)
-  function saveSettings(s){
-    localStorage.setItem('skillforge_settings', JSON.stringify(s));
-  }
-  function loadSettings(){
-    const raw = localStorage.getItem('skillforge_settings');
-    if(!raw) {
-      saveSettings(DEFAULT_SETTINGS);
-      return {...DEFAULT_SETTINGS};
-    }
-    try{
-      const parsed = JSON.parse(raw);
-      return {...DEFAULT_SETTINGS, ...parsed};
-    }catch(e){
-      saveSettings(DEFAULT_SETTINGS);
-      return {...DEFAULT_SETTINGS};
-    }
-  }
-
-  // Save best score per category in localStorage
-  function saveBestScore(categoryKey, name, score, total){
-    const raw = localStorage.getItem('skillforge_best') || '{}';
-    const best = JSON.parse(raw);
-    if(!best[categoryKey] || (score/total) > (best[categoryKey].score / best[categoryKey].total)){
-      best[categoryKey] = { name, score, total, date: new Date().toISOString() };
-      localStorage.setItem('skillforge_best', JSON.stringify(best));
-    }
-  }
-  function loadBestScores(){
-    const raw = localStorage.getItem('skillforge_best') || '{}';
-    try { return JSON.parse(raw); } catch(e){ return {}; }
-  }
-
-  // Utility: shuffle an array in-place
-  function shuffleArray(arr){
-    for(let i=arr.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [arr[i],arr[j]] = [arr[j],arr[i]];
-    }
-  }
-
-  // Utility: format percent truncation
-  function pctCorrect(correct, total){
-    if(total===0) return 0;
-    return ((correct/total)*100).toFixed(2);
-  }
-
-  /* ============================
-     UI Rendering functions
-     ============================ */
-
-  // Render category list in sidebar
-  function renderCategories(){
-    const list = document.createDocumentFragment();
-    const container = document.createElement('div');
-    CATEGORIES.forEach(cat => {
-      const wrap = create('div', {class: 'category', tabindex:0});
-      wrap.dataset.key = cat.key;
-      wrap.addEventListener('click', ()=> selectCategory(cat.key));
-      wrap.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') selectCategory(cat.key); });
-
-      const icon = create('div', {class:'icon'}, cat.icon);
-      const textWrap = create('div');
-      const title = create('h4', {}, cat.title);
-      const desc = create('p', {}, `Practice focused questions on ${cat.title}`);
-      desc.className = 'muted';
-      textWrap.appendChild(title);
-      textWrap.appendChild(desc);
-      wrap.appendChild(icon);
-      wrap.appendChild(textWrap);
-      container.appendChild(wrap);
-    });
-    $('categoryList').innerHTML = "";
-    $('categoryList').appendChild(container);
-    // apply selection highlight if state set
-    updateCategoryActive();
-  }
-
-  // Update "active" class for categories
-  function updateCategoryActive(){
-    const list = document.querySelectorAll('.category');
-    list.forEach(el=>{
-      if(el.dataset.key === state.selectedCategory) el.classList.add('active');
-      else el.classList.remove('active');
-    });
-  }
-
-  // Render best scores area
-  function renderBestScores(){
-    const obj = loadBestScores();
-    const area = $('bestScoresArea');
-    area.innerHTML = "";
-    CATEGORIES.forEach(cat=>{
-      const data = obj[cat.key];
-      const row = create('div', {class:'lead-row'});
-      row.innerHTML = `<div style="font-weight:700">${cat.title}</div>
-                       <div style="text-align:right">${data ? `<div style="font-weight:800">${data.name || 'You'}</div><div class="muted small">${data.score}/${data.total} (${pctCorrect(data.score,data.total)}%)</div>` : '<span class="muted small">No attempts</span>'}</div>`;
-      area.appendChild(row);
-    });
-  }
-
-  // Update user display (name & avatar)
-  function updateUserDisplay(){
-    const name = state.user.name || 'Guest User';
-    $('displayName').textContent = name;
-    $('userBadge').textContent = name;
-    $('avatar').textContent = name ? name.split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase() : 'U';
-  }
-
-  // Update main header chips (question count & time)
-  function updateHeaderChips(){
-    $('qCountChip').textContent = `Questions: ${state.settings.questionCount}`;
-    $('timeChip').textContent = `Time/Q: ${state.settings.timePerQuestion}s`;
-  }
-
-  // Show a specific view (welcome/quiz/result/settings)
-  function showView(view){
-    const views = ['welcomeView','quizView','resultView','settingsView'];
-    views.forEach(v=> $(v).classList.add('hidden'));
-    $(view).classList.remove('hidden');
-  }
-
-  /* ============================
-     Quiz lifecycle: start, load question, check answer...
-     ============================ */
-
-  // Called when a user selects a category (from sidebar)
-  function selectCategory(categoryKey){
-    state.selectedCategory = categoryKey;
-    updateCategoryActive();
-    // update main UI title
-    const catMeta = CATEGORIES.find(c=>c.key === categoryKey);
-    $('mainTitle').textContent = `Category: ${catMeta.title}`;
-    $('subTitle').textContent = `Ready to practice ${catMeta.title}. Configure settings or press Start.`;
-    showView('welcomeView');
-  }
-
-  // Prepare the current quiz (select questions from bank, shuffle if needed)
-  function prepareQuiz(demo=false){
-    if(!state.selectedCategory) {
-      alert("Please select a category from the left.");
-      return false;
-    }
-    // Clone question set for the selected category
-    const bank = (QUESTION_BANK[state.selectedCategory] || []).map(q=>({...q}));
-    if(bank.length === 0) {
-      alert("This category has no questions yet. Please add questions to the question bank.");
-      return false;
-    }
-
-    // Shuffle if setting enabled
-    if(state.settings.shuffleQuestions) shuffleArray(bank);
-
-    // Choose N questions based on settings (or demo smaller)
-    const count = demo ? Math.min(5, bank.length) : Math.min(state.settings.questionCount, bank.length);
-    state.questions = bank.slice(0, count);
-
-    // Reset counters
-    state.currentIndex = 0;
-    state.correct = 0;
-    state.incorrect = 0;
-    state.skipped = 0;
-    state.score = 0;
-    state.timeLeft = state.settings.timePerQuestion;
-
-    // Update UI
-    $('categoryBadge').textContent = CATEGORIES.find(c=>c.key===state.selectedCategory).title;
-    $('qIndex').textContent = `Q ${state.currentIndex+1} / ${state.questions.length}`;
-    $('liveScore').textContent = state.score;
-    updateProgressBar();
-
-    return true;
-  }
-
-  // Start the quiz (either demo or normal)
-  function startQuiz(demo=false){
-    const ok = prepareQuiz(demo);
-    if(!ok) return;
-    // hide welcome, show quiz
-    showView('quizView');
-    // show the settings area collapsed
-    $('settingsView').classList.add('hidden');
-    // load first question
-    renderQuestion();
-    startTimer();
-  }
-
-  // Render the current question and options
-  function renderQuestion(){
-    const q = state.questions[state.currentIndex];
-    if(!q){
-      // nothing to show
-      return;
-    }
-    // update question text and index
-    $('questionText').textContent = q.q;
-    $('qIndex').textContent = `Q ${state.currentIndex+1} / ${state.questions.length}`;
-    $('timeLeft').textContent = state.timeLeft;
-    // clear old options
-    const grid = $('optionsGrid');
-    grid.innerHTML = "";
-
-    // If options are more than 2, display grid 2x; ensure order is random if shuffle true
-    const opts = [...q.opts];
-    if(state.settings.shuffleQuestions) shuffleArray(opts);
-
-    opts.forEach(optText=>{
-      const b = create('div', {class:'opt', role:'button', tabindex:0}, optText);
-      b.addEventListener('click', ()=> handleAnswer(optText, b));
-      b.addEventListener('keydown', (e)=> { if(e.key === 'Enter') handleAnswer(optText,b); });
-      grid.appendChild(b);
-    });
-
-    // hide explanation for fresh question
-    $('explainText').classList.add('hidden');
-    $('explainText').textContent = "";
-
-    // hide or show prev button depending on index
-    $('prevBtn').disabled = (state.currentIndex === 0);
-    // update progress bar
-    updateProgressBar();
-    // focus first option for accessibility
-    setTimeout(()=> {
-      const first = grid.querySelector('.opt');
-      if(first) first.focus();
-    }, 120);
-  }
-
-  // Handle user selecting an answer
-  function handleAnswer(selectedText, btnEl){
-    // Prevent double-answering
-    if(btnEl.classList.contains('disabled')) return;
-
-    // Stop timer
-    stopTimer();
-
-    // mark all options disabled
-    const all = Array.from(document.querySelectorAll('.opt'));
-    all.forEach(o => o.classList.add('disabled'));
-
-    const currentQ = state.questions[state.currentIndex];
-    // mark correct/incorrect visuals
-    if(selectedText === currentQ.ans){
-      // correct
-      btnEl.classList.add('correct');
-      state.correct++;
-      state.score++;
-    } else {
-      btnEl.classList.add('wrong');
-      state.incorrect++;
-      // highlight the correct one
-      all.forEach(o=>{
-        if(o.textContent.trim() === currentQ.ans){
-          o.classList.add('correct');
-        }
-      });
-    }
-
-    // show explanation if present
-    if(currentQ.explain){
-      $('explainText').textContent = currentQ.explain;
-      $('explainText').classList.remove('hidden');
-    }
-
-    // update score display
-    $('liveScore').textContent = state.score;
-  }
-
-  // Skip current question (counts as skipped)
-  function skipQuestion(){
-    stopTimer();
-    state.skipped++;
-    nextQuestion();
-  }
-
-  // Next question navigation
-  function nextQuestion(){
-    // move index forward
-    state.currentIndex++;
-    if(state.currentIndex >= state.questions.length){
-      // end quiz
-      endQuiz();
-      return;
-    }
-    // reset time
-    state.timeLeft = state.settings.timePerQuestion;
-    startTimer();
-    renderQuestion();
-  }
-
-  // Previous question navigation (only for review before finishing)
-  function prevQuestion(){
-    if(state.currentIndex === 0) return;
-    state.currentIndex--;
-    state.timeLeft = state.settings.timePerQuestion;
-    renderQuestion();
-    startTimer();
-  }
-
-  /* ============================
-     Timer management
-     ============================ */
-  function startTimer(){
-    stopTimer(); // clear if exists
-    state.timeLeft = state.settings.timePerQuestion;
-    $('timeLeft').textContent = state.timeLeft;
-    state.timerId = setInterval(()=>{
-      state.timeLeft--;
-      $('timeLeft').textContent = state.timeLeft;
-      if(state.timeLeft <= 0){
-        // time up for this question -> treat as skipped and auto-next
-        stopTimer();
-        state.skipped++;
-        // show correct answer visually before next
-        const all = Array.from(document.querySelectorAll('.opt'));
-        all.forEach(o=>{
-          if(o.textContent.trim() === state.questions[state.currentIndex].ans) o.classList.add('correct');
-          o.classList.add('disabled');
-        });
-        // show explanation
-        const cur = state.questions[state.currentIndex];
-        if(cur.explain){
-          $('explainText').textContent = cur.explain;
-          $('explainText').classList.remove('hidden');
-        }
-        // after a short pause, auto-move next
-        setTimeout(()=> {
-          state.timeLeft = state.settings.timePerQuestion;
-          nextQuestion();
-        }, 1200);
-      }
-    }, 1000);
-  }
-  function stopTimer(){
-    if(state.timerId) {
-      clearInterval(state.timerId);
-      state.timerId = null;
-    }
-  }
-
-  /* ============================
-     End of Quiz & Results
-     ============================ */
-  function endQuiz(){
-    stopTimer();
-    // update final stats
-    const total = state.questions.length;
-    const finalScore = state.score;
-    const correct = state.correct;
-    const incorrect = state.incorrect;
-    const skipped = state.skipped;
-    const percent = pctCorrect(finalScore, total);
-
-    $('finalScore').textContent = `${finalScore} / ${total}`;
-    $('finalPercent').textContent = `${percent}%`;
-    $('finalCorrect').textContent = correct;
-    $('finalIncorrect').textContent = incorrect;
-    $('finalSkipped').textContent = skipped;
-
-    // give feedback message
-    let msg = "";
-    if(percent >= 85) msg = "Excellent! You're mastering this topic.";
-    else if(percent >= 60) msg = "Good performance. Keep practicing to improve.";
-    else msg = "Keep practicing — focus on weak areas and retry.";
-
-    $('finalFeedback').textContent = msg;
-
-    // Save best score to localStorage
-    saveBestScore(state.selectedCategory, state.user.name || 'You', finalScore, total);
-
-    // render category stats & leaderboard
-    renderCategoryStats();
-    renderResultLeaderboard();
-
-    // render review area for question-by-question explanation
-    renderReviewArea();
-
-    // show result view
-    showView('resultView');
-  }
-
-  function renderCategoryStats(){
-    const bank = QUESTION_BANK[state.selectedCategory] || [];
-    const totalAttempts = state.questions.length;
-    const avg = pctCorrect(state.correct || 0, totalAttempts);
-    const area = $('categoryStats');
-    area.innerHTML = '';
-    const html = `
-      <div style="margin-bottom:8px"><strong>Category:</strong> ${CATEGORIES.find(c=>c.key===state.selectedCategory).title}</div>
-      <div><strong>Session questions:</strong> ${totalAttempts}</div>
-      <div><strong>Correct:</strong> ${state.correct}</div>
-      <div><strong>Incorrect:</strong> ${state.incorrect}</div>
-      <div><strong>Skipped:</strong> ${state.skipped}</div>
-      <div style="margin-top:8px"><strong>Accuracy this session:</strong> ${avg}%</div>
-    `;
-    area.innerHTML = html;
-  }
-
-  function renderResultLeaderboard(){
-    const best = loadBestScores();
-    const data = best[state.selectedCategory];
-    const area = $('resultLeaderboard');
-    if(!data){
-      area.innerHTML = "<div class='muted small'>No stored best score for this category yet.</div>";
-      return;
-    }
-    area.innerHTML = `<div><strong>${data.name}</strong></div>
-                      <div class="muted small">${data.score}/${data.total} — ${pctCorrect(data.score,data.total)}%</div>
-                      <div class="muted small">Saved: ${new Date(data.date).toLocaleString()}</div>`;
-  }
-
-  function renderReviewArea(){
-    const container = $('reviewArea');
-    container.innerHTML = "";
-    state.questions.forEach((q, idx)=>{
-      const qWrap = create('div', {class:'card', style:'margin-bottom:10px;padding:12px;border-radius:10px'});
-      qWrap.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
-                          <div style="font-weight:700">Q${idx+1}: ${q.q}</div>
-                          <div class="muted small">Answer: <strong>${q.ans}</strong></div>
-                        </div>
-                        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-                          ${q.opts.map(opt=>{
-                            const cls = (opt === q.ans) ? 'opt correct' : 'opt disabled';
-                            return `<div style="padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);font-weight:600">${opt}</div>`;
-                          }).join('')}
-                        </div>
-                        <div class="explain" style="margin-top:8px">${q.explain || ''}</div>`;
-      container.appendChild(qWrap);
-    });
-  }
-
-  /* ============================
-     Settings management
-     ============================ */
-  function openSettings(){
-    $('settingCount').value = state.settings.questionCount;
-    $('settingTime').value = state.settings.timePerQuestion;
-    $('settingShuffle').value = state.settings.shuffleQuestions ? 'true' : 'false';
-    showView('settingsView');
-    $('settingsView').classList.remove('hidden');
-    // hide other main views within card for focus
-    $('welcomeView').classList.add('hidden');
-    $('quizView').classList.add('hidden');
-    $('resultView').classList.add('hidden');
-  }
-  function closeSettings(){
-    // return to welcome or quiz depending on current status
-    showView('welcomeView');
-  }
-  function saveSettingsUI(){
-    const newSettings = {
-      questionCount: parseInt($('settingCount').value, 10),
-      timePerQuestion: parseInt($('settingTime').value, 10),
-      shuffleQuestions: ($('settingShuffle').value === 'true')
-    };
-    state.settings = {...state.settings, ...newSettings};
-    saveSettings(state.settings);
-    updateHeaderChips();
-    alert('Settings saved.');
-    closeSettings();
-  }
-
-  /* ============================
-     Misc UI actions & event binding
-     ============================ */
-
-  // Update progress bar (percentage of completed questions)
-  function updateProgressBar(){
-    const total = state.questions.length || 1;
-    const percent = ((state.currentIndex) / total) * 100;
-    $('progressBar').style.width = percent + '%';
-  }
-
-  // Bind UI elements (buttons, clicks)
-  function bindUI(){
-    // Save username
-    $('saveName').addEventListener('click', ()=>{
-      const v = $('username').value.trim();
-      state.user.name = v || 'Guest User';
-      updateUserDisplay();
-      $('username').value = '';
-    });
-
-    // Category selection is handled in renderCategories via click events
-
-    // Start / demo
-    $('startBtn').addEventListener('click', ()=> startQuiz(false));
-    $('demoBtn').addEventListener('click', ()=> startQuiz(true));
-
-    // Settings
-    $('settingsBtn').addEventListener('click', ()=> openSettings());
-    $('saveSettingsBtn').addEventListener('click', saveSettingsUI);
-    $('cancelSettingsBtn').addEventListener('click', closeSettings);
-
-    // prev / next / skip / retry / new cat
-    $('prevBtn').addEventListener('click', ()=> { prevQuestion(); });
-    $('nextBtn').addEventListener('click', ()=> { nextQuestion(); });
-    $('skipBtn').addEventListener('click', ()=> { skipQuestion(); });
-    $('retryBtn').addEventListener('click', ()=> { startQuiz(false); });
-    $('newCatBtn').addEventListener('click', ()=> { showView('welcomeView'); });
-
-    // keyboard shortcuts for convenience
-    document.addEventListener('keydown', (e)=>{
-      // Only respond to keys when quiz view visible
-      if(!document.getElementById('quizView').classList.contains('hidden')){
-        if(e.key === 'ArrowRight') nextQuestion();
-        else if(e.key === 'ArrowLeft') prevQuestion();
-        else if(e.key === 's' || e.key === 'S') skipQuestion();
-      }
-    });
-  }
-
-  /* ============================
-     Initialization
-     ============================ */
-
-  function init(){
-    // Render static pieces
-    renderCategories();
-    renderBestScores();
-    updateUserDisplay();
-    updateHeaderChips();
-    bindUI();
-
-    // select default category for a nicer first load
-    selectCategory(CATEGORIES[0].key);
-
-    // show welcome view on first load
-    showView('welcomeView');
-
-    // If the user has previously saved settings, use them
-    state.settings = loadSettings();
-    updateHeaderChips();
-  }
-
-  // Run init when DOM is ready
-  document.addEventListener('DOMContentLoaded', init);
-
-  </script>
-
-  <!-- End of single-file app -->
+                <div class="highlight-card">
+                    <div class="highlight-icon">🌟</div>
+                    <h3>Fine Dining</h3>
+                    <p>An elegant atmosphere perfect for any occasion</p>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-icon">❤️</div>
+                    <h3>Customer First</h3>
+                    <p>Your satisfaction is our top priority</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Dishes -->
+    <section class="featured-dishes">
+        <div class="container">
+            <h2 class="section-title">Chef's Special</h2>
+            <div class="dishes-grid">
+                <div class="dish-card">
+                    <div class="dish-image">
+                        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop" alt="Grilled Salmon">
+                        <span class="special-badge">Special</span>
+                    </div>
+                    <div class="dish-content">
+                        <h3>Grilled Salmon</h3>
+                        <p>Fresh Atlantic salmon with herbs and lemon butter sauce</p>
+                        <span class="dish-price">$24.99</span>
+                    </div>
+                </div>
+                <div class="dish-card">
+                    <div class="dish-image">
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop" alt="Mediterranean Pasta">
+                        <span class="special-badge">Special</span>
+                    </div>
+                    <div class="dish-content">
+                        <h3>Mediterranean Pasta</h3>
+                        <p>Handmade pasta with sun-dried tomatoes and fresh basil</p>
+                        <span class="dish-price">$18.99</span>
+                    </div>
+                </div>
+                <div class="dish-card">
+                    <div class="dish-image">
+                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Wagyu Steak">
+                        <span class="special-badge">Special</span>
+                    </div>
+                    <div class="dish-content">
+                        <h3>Wagyu Steak</h3>
+                        <p>Premium wagyu beef with truffle mashed potatoes</p>
+                        <span class="dish-price">$45.99</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <a href="menu.html" class="btn btn-primary">View Full Menu</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Opening Hours -->
+    <section class="opening-hours">
+        <div class="container">
+            <div class="hours-content">
+                <h2>Opening Hours</h2>
+                <div class="hours-list">
+                    <div class="hours-item">
+                        <span class="day">Monday - Thursday</span>
+                        <span class="time">11:00 AM - 10:00 PM</span>
+                    </div>
+                    <div class="hours-item">
+                        <span class="day">Friday - Saturday</span>
+                        <span class="time">11:00 AM - 11:00 PM</span>
+                    </div>
+                    <div class="hours-item">
+                        <span class="day">Sunday</span>
+                        <span class="time">12:00 PM - 9:00 PM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Delicious Bites</h3>
+                    <p>A Culinary Journey of Excellence</p>
+                    <p>Experience fine dining with carefully crafted dishes</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="reservation.html">Reservation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p>📍 123 Restaurant Street, Food City, FC 12345</p>
+                    <p>📞 +1 (555) 123-4567</p>
+                    <p>✉️ info@deliciousbites.com</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook" class="social-link">Facebook</a>
+                        <a href="#" aria-label="Instagram" class="social-link">Instagram</a>
+                        <a href="#" aria-label="Twitter" class="social-link">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Delicious Bites. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" aria-label="Scroll to top">↑</button>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
+
